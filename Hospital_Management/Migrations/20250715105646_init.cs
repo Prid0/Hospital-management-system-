@@ -192,7 +192,7 @@ namespace Hospital_Management.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "appoinments",
+                name: "appointments",
                 columns: table => new
                 {
                     AppointmentId = table.Column<int>(type: "int", nullable: false)
@@ -200,26 +200,26 @@ namespace Hospital_Management.Migrations
                     PatientId = table.Column<int>(type: "int", nullable: true),
                     DoctorId = table.Column<int>(type: "int", nullable: false),
                     AppointmentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    SlotStartTime = table.Column<TimeSpan>(type: "time", nullable: false),
-                    SlotEndTime = table.Column<TimeSpan>(type: "time", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     RescheduledAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpadatedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SlotTime = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AppointmentBooked = table.Column<bool>(type: "bit", nullable: false),
+                    AppointmentRescheduled = table.Column<bool>(type: "bit", nullable: false),
+                    AppointmentCancled = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedBy = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_appoinments", x => x.AppointmentId);
+                    table.PrimaryKey("PK_appointments", x => x.AppointmentId);
                     table.ForeignKey(
-                        name: "FK_appoinments_doctors_DoctorId",
+                        name: "FK_appointments_doctors_DoctorId",
                         column: x => x.DoctorId,
                         principalTable: "doctors",
                         principalColumn: "DoctorId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_appoinments_patients_PatientId",
+                        name: "FK_appointments_patients_PatientId",
                         column: x => x.PatientId,
                         principalTable: "patients",
                         principalColumn: "PatientId",
@@ -283,13 +283,13 @@ namespace Hospital_Management.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_appoinments_DoctorId",
-                table: "appoinments",
+                name: "IX_appointments_DoctorId",
+                table: "appointments",
                 column: "DoctorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_appoinments_PatientId",
-                table: "appoinments",
+                name: "IX_appointments_PatientId",
+                table: "appointments",
                 column: "PatientId");
 
             migrationBuilder.CreateIndex(
@@ -340,7 +340,7 @@ namespace Hospital_Management.Migrations
                 name: "admins");
 
             migrationBuilder.DropTable(
-                name: "appoinments");
+                name: "appointments");
 
             migrationBuilder.DropTable(
                 name: "doctorOnLeaves");

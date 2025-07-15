@@ -48,13 +48,27 @@ namespace Hospital_Management.Services
             }
             return null;
         }
-        public async Task<PrescriptionModel> AddPrescription(AddPrescriptionDto prescription)
+        public async Task<PrescriptionModel?> AddPrescription(AddPrescriptionDto prescription)
         {
             if (prescription == null)
             {
-                throw new MissingFieldException();
+                throw new ArgumentNullException(nameof(prescription));
             }
-            var Addprescription = new PrescriptionModel
+
+            // Check if the patient has a valid appointment with the doctor
+            bool hasAppointment = await _db.appointments
+                .AnyAsync(x =>
+                    x.PatientId == prescription.PatientId &&
+                    x.DoctorId == prescription.DoctorId &&
+                    x.AppointmentBooked &&
+                    !x.AppointmentCancled);
+
+            if (!hasAppointment)
+            {
+                return null;
+            }
+
+            var newPrescription = new PrescriptionModel
             {
                 CreatedDate = DateTime.UtcNow,
                 UpdatedDate = DateTime.UtcNow,
@@ -70,11 +84,12 @@ namespace Hospital_Management.Services
                 }).ToList()
             };
 
-            _db.prescriptions.Add(Addprescription);
+            _db.prescriptions.Add(newPrescription);
             await _db.SaveChangesAsync();
-            return Addprescription;
 
+            return newPrescription;
         }
+
         public async Task<PrescriptionModel> AddMoreMedicinInPrescription(int patientId, int PrescriptionId, AddPrescriptionDto newprescription)
         {
             var oldPrescripton = await _db.prescriptions.FirstOrDefaultAsync(p => p.PatientId == patientId & p.PrescriptionId == PrescriptionId);

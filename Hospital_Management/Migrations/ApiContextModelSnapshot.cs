@@ -81,13 +81,19 @@ namespace Hospital_Management.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AppointmentId"));
 
+                    b.Property<bool>("AppointmentBooked")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("AppointmentCancled")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("AppointmentDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<bool>("AppointmentRescheduled")
+                        .HasColumnType("bit");
 
-                    b.Property<DateTime>("CreatedDate")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("DoctorId")
@@ -99,16 +105,11 @@ namespace Hospital_Management.Migrations
                     b.Property<DateTime?>("RescheduledAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<TimeSpan>("SlotEndTime")
-                        .HasColumnType("time");
+                    b.Property<string>("SlotTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<TimeSpan>("SlotStartTime")
-                        .HasColumnType("time");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpadatedDate")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<int?>("UpdatedBy")
@@ -120,7 +121,7 @@ namespace Hospital_Management.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("appoinments");
+                    b.ToTable("appointments");
                 });
 
             modelBuilder.Entity("Hospital_Management.Models.DepartmentModel", b =>

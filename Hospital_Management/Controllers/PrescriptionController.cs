@@ -39,7 +39,7 @@ namespace Hospital_Management.Controllers
             var newPrescription = await _prescriptionService.AddPrescription(dto);
 
             if (newPrescription == null)
-                return StatusCode(500, "Failed to create prescription.");
+                return StatusCode(500, "Failed to create prescription or Dont have an appointment.");
 
             return CreatedAtAction(nameof(GetAllPrescription), new { id = newPrescription.PrescriptionId }, newPrescription);
         }

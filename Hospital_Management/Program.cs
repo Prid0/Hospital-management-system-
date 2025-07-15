@@ -51,6 +51,8 @@ builder.Services.AddScoped<IprescriptionService, PrescriptionService>();
 builder.Services.AddScoped<IadminService, AdminService>();
 builder.Services.AddScoped<IreceptionistService, ReceptionistService>();
 builder.Services.AddScoped<IauthService, AuthService>();
+builder.Services.AddScoped<IappointmentService, Appiontmentservice>();
+
 
 //Add Swagger and configure it to support JWT
 builder.Services.AddEndpointsApiExplorer();

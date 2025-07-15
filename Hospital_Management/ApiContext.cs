@@ -13,7 +13,7 @@ namespace Hospital_Management
         public DbSet<PatientModel> patients { get; set; }
         public DbSet<DoctorModel> doctors { get; set; }
         public DbSet<DepartmentModel> departments { get; set; }
-        public DbSet<AppointmentModel> appoinments { get; set; }
+        public DbSet<AppointmentModel> appointments { get; set; }
         public DbSet<PrescriptionModel> prescriptions { get; set; }
         public DbSet<PrescribedMedicineModel> prescribedMedicines { get; set; }
         public DbSet<DoctorLeaveModel> doctorOnLeaves { get; set; }
