@@ -40,25 +40,25 @@ namespace Hospital_Management.Controllers
 
         [Authorize(Roles = "Doctor")]
         [HttpPut("{Id}")]
-        public async Task<IActionResult> UpdateDoctorLeave(int doctorsId, [FromBody] DoctorLeaveDto d)
+        public async Task<IActionResult> UpdateDoctorLeave(int Id, [FromBody] DoctorLeaveDto d)
         {
             if (d == null)
                 return BadRequest(new { Message = "Doctor leave data is required." });
 
-            var result = await _doctorOnLeave.UpdateLeave(d, doctorsId);
+            var result = await _doctorOnLeave.UpdateLeave(d, Id);
             if (result == null)
-                return NotFound(new { Message = $"No leave record found for Doctor ID {doctorsId}." });
+                return NotFound(new { Message = $"No leave record found for Doctor ID {Id}." });
 
             return Ok(result);
         }
 
         [Authorize(Roles = "Doctor")]
         [HttpDelete("{Id}")]
-        public async Task<IActionResult> DeleteDoctorLeave(int doctorsId)
+        public async Task<IActionResult> DeleteDoctorLeave(int Id)
         {
-            var result = await _doctorOnLeave.CancelLeave(doctorsId);
+            var result = await _doctorOnLeave.CancelLeave(Id);
             if (result == null)
-                return NotFound(new { Message = $"No leave record found for Doctor ID {doctorsId}." });
+                return NotFound(new { Message = $"No leave record found for Doctor ID {Id}." });
 
             return Ok(result);
         }

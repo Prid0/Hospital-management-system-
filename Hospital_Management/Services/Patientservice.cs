@@ -173,10 +173,10 @@ namespace Hospital_Management.Services
             return CreatedPatient;
         }
 
-        public async Task<GeneralResponseDto?> UpdatePatient(AddGeneralDto patient, int patientId, int UpdatedById)
+        public async Task<GeneralResponseDto?> UpdatePatient(int Id, AddGeneralDto patient, int UpdatedById)
         {
             //var role = user.FindFirst(ClaimTypes.Role)?.Value;
-            var existingPatient = await _db.patients.Include(p => p.Users).FirstOrDefaultAsync(p => p.PatientId == patientId);
+            var existingPatient = await _db.patients.Include(p => p.Users).FirstOrDefaultAsync(p => p.PatientId == (int)Id);
 
             if (existingPatient == null)
                 throw new Exception("Patient not found");
@@ -211,7 +211,7 @@ namespace Hospital_Management.Services
                 PhoneNumber = existingPatient.PhoneNumber
             };
 
-            throw new FileNotFoundException($"no such patient with Id:{patientId}");
+            throw new FileNotFoundException($"no such patient with Id:{Id}");
         }
 
         public async Task<GeneralResponseDto> DeletePatient(int patientId)

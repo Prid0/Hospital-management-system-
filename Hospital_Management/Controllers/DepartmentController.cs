@@ -43,14 +43,14 @@ namespace Hospital_Management.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{Id}")]
-        public async Task<IActionResult> UpdateDepartment(int departmentId, [FromBody] DepartmentDto department)
+        public async Task<IActionResult> UpdateDepartment(int Id, [FromBody] DepartmentDto department)
         {
             if (department == null)
                 return BadRequest(new { Message = "Department data is required." });
 
-            var result = await _department.UpdateDepartment(department, departmentId);
+            var result = await _department.UpdateDepartment(department, Id);
             if (result == null)
-                return NotFound(new { Message = $"Department with ID {departmentId} not found." });
+                return NotFound(new { Message = $"Department with ID {Id} not found." });
 
             return Ok(result);
         }

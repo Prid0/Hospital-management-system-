@@ -39,25 +39,25 @@ namespace Hospital_Management.Controllers
         }
         [Authorize(Roles = "Admin,Receptionist")]
         [HttpPut("{Id}")]
-        public async Task<IActionResult> Updatereceptionist(int receptionistId, [FromBody] AddGeneralDto receptionist)
+        public async Task<IActionResult> Updatereceptionist(int Id, [FromBody] AddGeneralDto receptionist)
         {
             int UpdatedById = int.Parse(User.FindFirst("UserID")?.Value);
             if (receptionist == null)
                 return BadRequest(new { Message = "receptionist data is required." });
 
-            var result = await _receptionist.UpdateReceptionist(receptionist, receptionistId, UpdatedById);
+            var result = await _receptionist.UpdateReceptionist(receptionist, Id, UpdatedById);
             if (result == null)
-                return NotFound(new { Message = $"receptionist with ID {receptionistId} not found." });
+                return NotFound(new { Message = $"receptionist with ID {Id} not found." });
 
             return Ok(result);
         }
 
         [HttpDelete("{Id}")]
-        public async Task<IActionResult> Deletereceptionist(int receptionistId)
+        public async Task<IActionResult> Deletereceptionist(int Id)
         {
-            var result = await _receptionist.DeleteReceptionist(receptionistId);
+            var result = await _receptionist.DeleteReceptionist(Id);
             if (result == null)
-                return NotFound(new { Message = $"receptionist with ID {receptionistId} not found." });
+                return NotFound(new { Message = $"receptionist with ID {Id} not found." });
 
             return Ok(result);
         }

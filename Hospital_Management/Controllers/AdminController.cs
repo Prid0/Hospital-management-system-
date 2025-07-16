@@ -36,25 +36,25 @@ namespace Hospital_Management.Controllers
         }
 
         [HttpPut("{Id}")]
-        public async Task<IActionResult> Updateadmin(int adminId, [FromBody] AddGeneralDto admin)
+        public async Task<IActionResult> Updateadmin(int Id, [FromBody] AddGeneralDto admin)
         {
             int UpdatedById = int.Parse(User.FindFirst("UserID")?.Value);
             if (admin == null)
                 return BadRequest(new { Message = "admin data is required." });
 
-            var result = await _iadmin.UpdateAdmin(admin, adminId, UpdatedById);
+            var result = await _iadmin.UpdateAdmin(admin, Id, UpdatedById);
             if (result == null)
-                return NotFound(new { Message = $"admin with ID {adminId} not found." });
+                return NotFound(new { Message = $"admin with ID {Id} not found." });
 
             return Ok(result);
         }
 
         [HttpDelete("{Id}")]
-        public async Task<IActionResult> Deleteadmin(int adminId)
+        public async Task<IActionResult> Deleteadmin(int Id)
         {
-            var result = await _iadmin.DeleteAdmin(adminId);
+            var result = await _iadmin.DeleteAdmin(Id);
             if (result == null)
-                return NotFound(new { Message = $"admin with ID {adminId} not found." });
+                return NotFound(new { Message = $"admin with ID {Id} not found." });
 
             return Ok(result);
         }

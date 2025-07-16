@@ -37,6 +37,28 @@ namespace Hospital_Management.Controllers
             return NotFound(new { Message = "No Appointments found." });
         }
 
+        [Authorize(Roles = "Admin,Receptionist")]
+        [HttpGet("DailyAppointmentsCountByDoctor")]
+        public async Task<IActionResult> DailyAppointmentsCountByDoctor()
+        {
+            var Appointments = await _iappointment.DailyAppointmentsCountByDoctor();
+            if (Appointments != null)
+                return Ok(Appointments);
+
+            return NotFound(new { Message = "No Records Avalable." });
+        }
+
+        [Authorize(Roles = "Admin,Receptionist")]
+        [HttpGet("DailyAppointmentsCountByDepartment")]
+        public async Task<IActionResult> DailyAppointmentsCountByDepartment()
+        {
+            var Appointments = await _iappointment.DailyAppointmentsCountByDepartment();
+            if (Appointments != null)
+                return Ok(Appointments);
+
+            return NotFound(new { Message = "No Records Avalable." });
+        }
+
         [Authorize(Roles = "Admin,Receptionist,Patient")]
         [HttpPost]
         public async Task<IActionResult> AddAppointment([FromBody] AddAppointmentDto patient)
@@ -50,17 +72,17 @@ namespace Hospital_Management.Controllers
 
         [Authorize(Roles = "Admin,Receptionist")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAppointment(int appointmenttId, [FromBody] AddAppointmentDto patient)
+        public async Task<IActionResult> UpdateAppointment(int Id, [FromBody] UpdateAppointment patient)
         {
             int UpdatedById = int.Parse(User.FindFirst("UserID")?.Value);
 
             if (patient == null)
                 return BadRequest(new { Message = "Patient data is required." });
 
-            var result = await _iappointment.UpdateAppointment(patient, appointmenttId, UpdatedById);
+            var result = await _iappointment.UpdateAppointment(patient, Id, UpdatedById);
 
             if (result == null)
-                return NotFound(new { Message = $"Patient with ID {appointmenttId} not found." });
+                return NotFound(new { Message = $"Patient with ID {Id} not found." });
 
             return Ok(result);
         }

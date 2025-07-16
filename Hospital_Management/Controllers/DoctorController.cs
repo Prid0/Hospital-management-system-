@@ -54,26 +54,26 @@ namespace Hospital_Management.Controllers
 
         [Authorize(Roles = "Admin,Doctor")]
         [HttpPut("{Id}")]
-        public async Task<IActionResult> UpdateDoctor(int doctorId, [FromBody] DoctorDto doctor)
+        public async Task<IActionResult> UpdateDoctor(int Id, [FromBody] DoctorDto doctor)
         {
             int UpdatedById = int.Parse(User.FindFirst("UserID")?.Value);
             if (doctor == null)
                 return BadRequest(new { Message = "Doctor data is required." });
 
-            var result = await _doctorService.UpdateDoctor(doctor, doctorId, UpdatedById);
+            var result = await _doctorService.UpdateDoctor(doctor, Id, UpdatedById);
             if (result == null)
-                return NotFound(new { Message = $"Doctor with ID {doctorId} not found." });
+                return NotFound(new { Message = $"Doctor with ID {Id} not found." });
 
             return Ok(result);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("{Id}")]
-        public async Task<IActionResult> DeleteDoctor(int doctorId)
+        public async Task<IActionResult> DeleteDoctor(int Id)
         {
-            var result = await _doctorService.DeleteDoctor(doctorId);
+            var result = await _doctorService.DeleteDoctor(Id);
             if (result == null)
-                return NotFound(new { Message = $"Doctor with ID {doctorId} not found." });
+                return NotFound(new { Message = $"Doctor with ID {Id} not found." });
 
             return Ok(result);
         }

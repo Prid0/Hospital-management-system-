@@ -6,7 +6,7 @@ namespace Hospital_Management.Services.Iservice
     {
         public Task<List<GeneralResponseDto>> GetAllPatient();
         public Task<GeneralResponseDto> AddPatient(AddGeneralDto patient);
-        public Task<GeneralResponseDto> UpdatePatient(AddGeneralDto patient, int patientId, int UpdatedById);
+        public Task<GeneralResponseDto> UpdatePatient(int Id, AddGeneralDto patient, int UpdatedById);
         public Task<GeneralResponseDto> GetPatientByName(string patientName);
         public Task<GeneralResponseDto> GetPatientByEmail(string patientEmail);
         public Task<PatientMedicalRecordDto> GetPatientMedicalRecord(int patientId);

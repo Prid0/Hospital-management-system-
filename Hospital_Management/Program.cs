@@ -53,6 +53,7 @@ builder.Services.AddScoped<IreceptionistService, ReceptionistService>();
 builder.Services.AddScoped<IauthService, AuthService>();
 builder.Services.AddScoped<IappointmentService, Appiontmentservice>();
 
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 //Add Swagger and configure it to support JWT
 builder.Services.AddEndpointsApiExplorer();
@@ -95,6 +96,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+//app.UseExceptionHandler();
+//app.UseExceptionHandler(); // Optional base handler
+//app.UseExceptionHandler<GlobalExceptionHandler>();
 
 app.UseHttpsRedirection();
 

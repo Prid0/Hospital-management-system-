@@ -61,14 +61,14 @@ namespace Hospital_Management.Controllers
         }
 
         [Authorize(Roles = "Admin,Doctor,Receptionist")]
-        [HttpGet("{id}/medical-records")]
-        public async Task<IActionResult> GetPatientMedicalRecord(int patientId)
+        [HttpGet("{Id}/medical-records")]
+        public async Task<IActionResult> GetPatientMedicalRecord(int Id)
         {
-            var patient = await _patientservice.GetPatientMedicalRecord(patientId);
+            var patient = await _patientservice.GetPatientMedicalRecord(Id);
             if (patient != null)
                 return Ok(patient);
 
-            return NotFound(new { Message = $"No medical record found for Patient ID: {patientId}" });
+            return NotFound(new { Message = $"No medical record found for Patient ID: {Id}" });
         }
 
 
@@ -83,18 +83,22 @@ namespace Hospital_Management.Controllers
         }
 
         [Authorize(Roles = "Admin,Patient")]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePatient(int patientId, [FromBody] AddGeneralDto patient)
+        [HttpPut("{Id}")]
+        public async Task<IActionResult> UpdatePatient(int Id, [FromBody] AddGeneralDto patient)
         {
+            if (!ModelState.IsValid)
+            {
+                throw new Exception();
+            }
             int UpdatedById = int.Parse(User.FindFirst("UserID")?.Value);
 
             if (patient == null)
                 return BadRequest(new { Message = "Patient data is required." });
 
-            var result = await _patientservice.UpdatePatient(patient, patientId, UpdatedById);
+            var result = await _patientservice.UpdatePatient(Id, patient, UpdatedById);
 
             if (result == null)
-                return NotFound(new { Message = $"Patient with ID {patientId} not found." });
+                return NotFound(new { Message = $"Patient with ID {Id} not found." });
 
             return Ok(result);
         }
@@ -102,11 +106,11 @@ namespace Hospital_Management.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpDelete]
-        public async Task<IActionResult> DeletePatient(int patientId)
+        public async Task<IActionResult> DeletePatient(int Id)
         {
-            var result = await _patientservice.DeletePatient(patientId);
+            var result = await _patientservice.DeletePatient(Id);
             if (result == null)
-                return NotFound(new { Message = $"Patient with ID {patientId} not found." });
+                return NotFound(new { Message = $"Patient with ID {Id} not found." });
 
             return Ok(result);
         }

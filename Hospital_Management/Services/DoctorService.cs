@@ -48,6 +48,8 @@ namespace Hospital_Management.Services
         {
             var today = DateTime.UtcNow;
 
+            await _db.doctorOnLeaves.Where(l => l.EndDate.Date < today && l.OnLeave).ExecuteUpdateAsync(setters => setters.SetProperty(l => l.OnLeave, false));
+
             var doctorsdto = await _db.doctors
                 .Include(p => p.LeaveRecords)
                 .Include(p => p.Department)
@@ -66,6 +68,7 @@ namespace Hospital_Management.Services
 
                 })
                 .ToListAsync();
+
 
             return doctorsdto;
         }
