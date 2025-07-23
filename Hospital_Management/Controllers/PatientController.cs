@@ -28,37 +28,46 @@ namespace Hospital_Management.Controllers
         }
 
         [Authorize(Roles = "Admin,Doctor,Receptionist")]
-        [HttpGet("name")]
-        public async Task<IActionResult> GetPatientByName(string patientName)
+        [HttpGet("search")]
+
+        public async Task<IActionResult> GetPatientBySearch(string search)
         {
-            var patient = await _patientservice.GetPatientByName(patientName);
+            var patient = await _patientservice.GetPatientBySearch(search);
             if (patient != null)
                 return Ok(patient);
 
-            return NotFound(new { Message = $"No patient found with name: {patientName}" });
+            return NotFound(new { Message = $"No patient found please enter the valid detail" });
         }
+        //public async Task<IActionResult> GetPatientByName(string patientName)
+        //{
+        //    var patient = await _patientservice.GetPatientByName(patientName);
+        //    if (patient != null)
+        //        return Ok(patient);
 
-        [Authorize(Roles = "Admin,Doctor,Receptionist")]
-        [HttpGet("email")]
-        public async Task<IActionResult> GetPatientByEmail(string patientEmail)
-        {
-            var patient = await _patientservice.GetPatientByEmail(patientEmail);
-            if (patient != null)
-                return Ok(patient);
+        //    return NotFound(new { Message = $"No patient found with name: {patientName}" });
+        //}
 
-            return NotFound(new { Message = $"No patient found with email: {patientEmail}" });
-        }
+        //[Authorize(Roles = "Admin,Doctor,Receptionist")]
+        //[HttpGet("email")]
+        //public async Task<IActionResult> GetPatientByEmail(string patientEmail)
+        //{
+        //    var patient = await _patientservice.GetPatientByEmail(patientEmail);
+        //    if (patient != null)
+        //        return Ok(patient);
 
-        [Authorize(Roles = "Admin,Doctor,Receptionist")]
-        [HttpGet("phone")]
-        public async Task<IActionResult> GetPatientByPhoneNumber(string patientPhoneNumber)
-        {
-            var patient = await _patientservice.GetPatientByPhoneNumber(patientPhoneNumber);
-            if (patient != null)
-                return Ok(patient);
+        //    return NotFound(new { Message = $"No patient found with email: {patientEmail}" });
+        //}
 
-            return NotFound(new { Message = $"No patient found with phone number: {patientPhoneNumber}" });
-        }
+        //[Authorize(Roles = "Admin,Doctor,Receptionist")]
+        //[HttpGet("phone")]
+        //public async Task<IActionResult> GetPatientByPhoneNumber(string patientPhoneNumber)
+        //{
+        //    var patient = await _patientservice.GetPatientByPhoneNumber(patientPhoneNumber);
+        //    if (patient != null)
+        //        return Ok(patient);
+
+        //    return NotFound(new { Message = $"No patient found with phone number: {patientPhoneNumber}" });
+        //}
 
         [Authorize(Roles = "Admin,Doctor,Receptionist")]
         [HttpGet("{Id}/medical-records")]

@@ -8,18 +8,20 @@ namespace Hospital_Management.Services
     public class Appiontmentservice : IappointmentService
     {
         private readonly ApiContext _db;
-        public Appiontmentservice(ApiContext db)
+        private readonly IEmailService _emailService;
+        public Appiontmentservice(ApiContext db, IEmailService emailService)
         {
             _db = db;
+            _emailService = emailService;
         }
 
-        public async Task<List<ResponseAppointments>> GetAllAppointments()
+        public async Task<List<ResponseAppointmentDto>> GetAllAppointments()
         {
             var AllAppiontments = await _db.appointments.Include(p => p.Patient).Include(d => d.Doctor).Where(a => a.AppointmentBooked || a.AppointmentRescheduled).ToListAsync();
             if (AllAppiontments != null & AllAppiontments.Count > 0)
             {
 
-                var appointments = AllAppiontments.Select(a => new ResponseAppointments
+                var appointments = AllAppiontments.Select(a => new ResponseAppointmentDto
                 {
                     AppointmentId = a.AppointmentId,
                     PatientId = (int)a.PatientId,
@@ -79,7 +81,7 @@ namespace Hospital_Management.Services
             return result;
         }
 
-        public async Task<AppointmentModel> Addappointment(AddAppointmentDto appointment)
+        public async Task<ResponseAppointmentDto> Addappointment(AddAppointmentDto appointment)
         {
             if (appointment == null)
                 throw new ArgumentNullException(nameof(appointment), "Appointment data is missing.");
@@ -88,20 +90,26 @@ namespace Hospital_Management.Services
             var slot = appointment.SlotTime;
             var patientId = appointment.PatientId;
             var doctorId = appointment.DoctorId;
-
             var today = DateTime.UtcNow.Date;
 
-            // Check if doctor has a leave entry
-            var leave = await _db.doctorOnLeaves
-                .FirstOrDefaultAsync(a => a.DoctorId == doctorId);
+            var patient = await _db.patients.FindAsync(patientId);
+            var doctor = await _db.doctors.FindAsync(doctorId);
+
+            if (patient == null || doctor == null)
+                throw new Exception("Patient or doctor not found.");
+            if (date < today)
+            {
+                throw new Exception("Please enter thr valid date for booking appointment.");
+            }
+
+            // Check doctor's leave
+            var leave = await _db.doctorOnLeaves.FirstOrDefaultAsync(l => l.DoctorId == doctorId);
 
             if (leave != null)
             {
-                // If doctor is currently on leave
                 if (leave.StartDate.Date <= today && leave.EndDate.Date >= today)
                     throw new Exception("Doctor is on leave.");
 
-                // If leave is over, update OnLeave = false
                 if (leave.EndDate.Date < today && leave.OnLeave)
                 {
                     leave.OnLeave = false;
@@ -109,7 +117,7 @@ namespace Hospital_Management.Services
                 }
             }
 
-            // Doctor already booked for this slot?
+            // Check conflicts
             bool isDoctorSlotTaken = await _db.appointments.AnyAsync(a =>
                 a.DoctorId == doctorId &&
                 a.AppointmentDate.Date == date &&
@@ -119,7 +127,6 @@ namespace Hospital_Management.Services
             if (isDoctorSlotTaken)
                 throw new Exception("Doctor is already booked for this slot.");
 
-            // Patient already booked same doctor in this slot?
             bool hasPatientBookedSameDoctor = await _db.appointments.AnyAsync(a =>
                 a.PatientId == patientId &&
                 a.DoctorId == doctorId &&
@@ -130,7 +137,6 @@ namespace Hospital_Management.Services
             if (hasPatientBookedSameDoctor)
                 throw new Exception("You have already booked this doctor in this slot.");
 
-            // Patient booked other doctor in same slot?
             bool hasPatientBookedOtherDoctor = await _db.appointments.AnyAsync(a =>
                 a.PatientId == patientId &&
                 a.DoctorId != doctorId &&
@@ -141,7 +147,7 @@ namespace Hospital_Management.Services
             if (hasPatientBookedOtherDoctor)
                 throw new Exception("You have already booked another doctor in the same slot.");
 
-            // All checks passed — book the appointment
+            // Book appointment
             var newAppointment = new AppointmentModel
             {
                 PatientId = patientId,
@@ -152,11 +158,34 @@ namespace Hospital_Management.Services
                 CreatedAt = DateTime.UtcNow
             };
 
+            var appointments = new ResponseAppointmentDto
+            {
+                PatientId = (int)patientId,
+                PatientName = patient.FullName,
+                PatientEmail = patient.Email,
+                DoctorId = doctorId,
+                DoctorFullName = doctor.FullName,
+                DoctorEmail = doctor.Email,
+                AppointmentDate = appointment.AppointmentDate,
+                SlotTime = appointment.SlotTime,
+                AppointmentBooked = true,
+
+            };
+
+            // Send confirmation email
+            await _emailService.SendAppointmentConfirmationAsync(
+            toEmail: patient.Email,
+            patientName: patient.FullName,
+            doctorName: $"Dr. {doctor.FullName}",
+            appointmentDate: appointment.AppointmentDate,
+            slotTime: slot);
+
+
             await _db.appointments.AddAsync(newAppointment);
             await _db.SaveChangesAsync();
-
-            return newAppointment;
+            return appointments;
         }
+
 
 
 
@@ -197,54 +226,5 @@ namespace Hospital_Management.Services
             return null;
         }
 
-        public async Task<object> DailyAppointmentsCountByDoctor()
-        {
-            var query = @"select DoctorId,count(PatientId)as patients
-                          from appointments
-                          group by DoctorId;";
-
-            var todayUtc = DateTime.UtcNow.Date;
-
-            var result = await _db.appointments
-                .Where(a => a.AppointmentDate.Date == todayUtc ||
-                           (a.AppointmentRescheduled != null && a.RescheduledAt.HasValue && a.RescheduledAt.Value.Date == todayUtc))
-                .GroupBy(a => a.DoctorId)
-                .Select(g => new
-                {
-                    DoctorId = g.Key,
-                    NumberOfPatients = g.Count()
-                })
-                .ToListAsync();
-
-
-            return result;
-        }
-
-
-        public async Task<object> DailyAppointmentsCountByDepartment()
-        {
-            var query = @"select d.DepartmentId,count(a.PatientId)as patients
-                          from appointments a
-                          left join doctors d on a.DoctorId=d.DoctorId
-                          left join departments dp on d.DepartmentId=dp.DepartmentId
-                          group by d.DepartmentId;";
-            var todayUtc = DateTime.UtcNow.Date;
-
-            var result = await (from a in _db.appointments
-                                where a.AppointmentDate.Date == todayUtc ||
-                                      (a.RescheduledAt != null && a.RescheduledAt.Value.Date == todayUtc)
-                                join d in _db.doctors on a.DoctorId equals d.DoctorId into adGroup
-                                from d in adGroup.DefaultIfEmpty()
-                                join dp in _db.departments on d.DepartmentId equals dp.DepartmentId into ddGroup
-                                from dp in ddGroup.DefaultIfEmpty()
-                                group a by d.DepartmentId into g
-                                select new
-                                {
-                                    DepartmentId = g.Key,
-                                    NumberOfPatients = g.Count(x => x.PatientId != null)
-                                }).ToListAsync();
-
-            return result;
-        }
     }
 }

@@ -20,8 +20,10 @@ namespace Hospital_Management
         public DbSet<AdminModel> admins { get; set; }
         public DbSet<ReceptionistModel> receptionists { get; set; }
 
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
             // Prevent cascade delete from Patient → Prescription
             modelBuilder.Entity<PrescriptionModel>()
                 .HasOne(p => p.Patient)

@@ -37,28 +37,6 @@ namespace Hospital_Management.Controllers
             return NotFound(new { Message = "No Appointments found." });
         }
 
-        [Authorize(Roles = "Admin,Receptionist")]
-        [HttpGet("DailyAppointmentsCountByDoctor")]
-        public async Task<IActionResult> DailyAppointmentsCountByDoctor()
-        {
-            var Appointments = await _iappointment.DailyAppointmentsCountByDoctor();
-            if (Appointments != null)
-                return Ok(Appointments);
-
-            return NotFound(new { Message = "No Records Avalable." });
-        }
-
-        [Authorize(Roles = "Admin,Receptionist")]
-        [HttpGet("DailyAppointmentsCountByDepartment")]
-        public async Task<IActionResult> DailyAppointmentsCountByDepartment()
-        {
-            var Appointments = await _iappointment.DailyAppointmentsCountByDepartment();
-            if (Appointments != null)
-                return Ok(Appointments);
-
-            return NotFound(new { Message = "No Records Avalable." });
-        }
-
         [Authorize(Roles = "Admin,Receptionist,Patient")]
         [HttpPost]
         public async Task<IActionResult> AddAppointment([FromBody] AddAppointmentDto patient)

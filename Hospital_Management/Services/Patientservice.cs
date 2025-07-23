@@ -25,6 +25,25 @@ namespace Hospital_Management.Services
             return patientdto;
         }
 
+        public async Task<GeneralResponseDto> GetPatientBySearch(string search)
+        {
+            var patient = await _db.patients.FirstOrDefaultAsync(d => d.Email == search || d.FullName == search || d.PhoneNumber == search);
+            if (patient == null)
+            {
+                return null;
+            }
+            var Patient = new GeneralResponseDto
+            {
+                Id = (int)patient.PatientId,
+                Email = patient.Email,
+                Gender = patient.Gender,
+                FullName = patient.FullName,
+                PhoneNumber = patient.PhoneNumber,
+
+            };
+            return Patient;
+        }
+
         public async Task<GeneralResponseDto> GetPatientByName(string patientName)
         {
             var patient = await _db.patients.FirstOrDefaultAsync(d => d.FullName == patientName);
@@ -175,7 +194,6 @@ namespace Hospital_Management.Services
 
         public async Task<GeneralResponseDto?> UpdatePatient(int Id, AddGeneralDto patient, int UpdatedById)
         {
-            //var role = user.FindFirst(ClaimTypes.Role)?.Value;
             var existingPatient = await _db.patients.Include(p => p.Users).FirstOrDefaultAsync(p => p.PatientId == (int)Id);
 
             if (existingPatient == null)
@@ -189,7 +207,7 @@ namespace Hospital_Management.Services
             existingPatient.UpadatedDate = DateTime.UtcNow;
             existingPatient.UpdatedBy = UpdatedById;
 
-            // Update linked User fields
+
             if (existingPatient.Users != null)
             {
                 existingPatient.Users.FullName = patient.FullName;

@@ -1,4 +1,6 @@
+using DotNetEnv;
 using Hospital_Management;
+using Hospital_Management.Models;
 using Hospital_Management.Services;
 using Hospital_Management.Services.Iservice;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -8,6 +10,8 @@ using Microsoft.OpenApi.Models;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
+Env.Load();
+//using IEmailService = NETCore.MailKit.Core.IEmailService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +24,8 @@ builder.Services.AddControllers()
 
 builder.Services.AddDbContext<ApiContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("dbcon")));
+
+builder.Services.Configure<SmtpSetting>(builder.Configuration.GetSection("SmtpSetting"));
 
 // Configure JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -52,6 +58,8 @@ builder.Services.AddScoped<IadminService, AdminService>();
 builder.Services.AddScoped<IreceptionistService, ReceptionistService>();
 builder.Services.AddScoped<IauthService, AuthService>();
 builder.Services.AddScoped<IappointmentService, Appiontmentservice>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IdashBoardServive, DashboardService>();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
@@ -66,7 +74,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Name = "Authorization",
         In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
+        Type = SecuritySchemeType.Http,
         Scheme = "Bearer",
         BearerFormat = "JWT",
         Description = "Enter 'Bearer {your JWT token}'"
@@ -83,7 +91,8 @@ builder.Services.AddSwaggerGen(c =>
                     Id = "Bearer"
                 }
             },
-            Array.Empty<string>()
+            new string[]{}
+            //Array.Empty<string>()
         }
     });
 });
